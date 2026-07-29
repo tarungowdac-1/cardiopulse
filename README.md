@@ -8,44 +8,64 @@ CardioPulse DSP is a full-stack, cloud-deployed **Java Biomedical Signal Process
 
 ---
 
-## 📐 System Architecture & DSP Pipeline
+# 📐 System Architecture & DSP Pipeline
 
 ```mermaid
 graph TD
-    %% Nodes
     A[Noisy ECG Telemetry Generator] -->|50Hz Grid Noise + Baseline Wander| B[2nd-Order IIR Butterworth LPF]
     B -->|High Frequencies Attenuated| C[50Hz Narrow Band-Stop Notch Filter]
-    
+
     subgraph Pan-Tompkins QRS Detection Engine
         C --> D[5-Point Derivative Filter]
         D --> E[Signal Squaring Unit]
         E --> F[Moving Window Integration]
         F --> G[Adaptive Dynamic Thresholding]
     end
-    
+
     G --> H[R-Peak Indices & Timestamps]
     H --> I[BPM & Heart Rate Variability Calculation]
     C --> J[Fast Fourier Transform Spectrum]
 
-    %% Styling
     classDef default fill:#151c28,stroke:#3b82f6,stroke-width:2px,color:#fff;
     classDef highlight fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff;
     class H,I,J highlight;
-
 ```
 
 ---
 
-## Most web applications are simple CRUD (Create, Read, Update, Delete) systems. **CardioPulse DSP stands out because it solves low-level mathematical and digital signal processing (DSP) challenges on the backend:**
+# Why CardioPulse DSP?
 
-1. **Custom DSP Algorithms in Pure Java:** Built low-pass IIR Butterworth and Notch filters directly from difference equations without relying on external black-box signal processing libraries.
-2. **Clinical-Grade Peak Detection:** Implemented the industry-standard **Pan-Tompkins Algorithm** featuring 5-point derivatives, signal squaring, moving-window integration, and dynamic adaptive thresholding.
-3. **Dual Domain Analytics (Time & Frequency):** Uses **Fast Fourier Transforms (FFT)** via Apache Commons Math to mathematically prove powerline noise suppression in the frequency spectrum alongside time-domain waveform charts.
-4. **End-to-End Cloud Engineering:** Containerized multi-stage Docker build pipeline deployed on Render with dynamic control parameters (Sampling Rate, Noise Intensity, Target BPM).
+Most web applications are simple CRUD (Create, Read, Update, Delete) systems. **CardioPulse DSP stands out because it solves low-level mathematical and digital signal processing (DSP) challenges on the backend.**
+
+### 1. Custom DSP Algorithms in Pure Java
+Built low-pass IIR Butterworth and Notch filters directly from difference equations without relying on external black-box signal processing libraries.
+
+### 2. Clinical-Grade Peak Detection
+Implemented the industry-standard **Pan-Tompkins Algorithm** featuring:
+
+- 5-point derivative filtering
+- Signal squaring
+- Moving-window integration
+- Dynamic adaptive thresholding
+
+### 3. Dual-Domain Analytics (Time & Frequency)
+
+Uses **Fast Fourier Transform (FFT)** through Apache Commons Math to mathematically demonstrate:
+
+- Suppression of 50 Hz powerline noise
+- Frequency spectrum analysis
+- Time-domain ECG visualization
+
+### 4. End-to-End Cloud Engineering
+
+- Multi-stage Docker build
+- Spring Boot backend
+- Render cloud deployment
+- Dynamic runtime parameters
 
 ---
 
-## 🛠️ Detailed Filtering Pipeline
+# 🛠️ Detailed Filtering Pipeline
 
 ```mermaid
 flowchart LR
@@ -58,7 +78,7 @@ flowchart LR
     subgraph Stage2[2. QRS Feature Extraction]
         direction TB
         S2A[Slope Amplification]
-        S2B[Energy Integration: ~150ms Window]
+        S2B[Energy Integration (~150 ms)]
     end
 
     subgraph Stage3[3. Metric Evaluation]
@@ -68,103 +88,184 @@ flowchart LR
     end
 
     Stage1 --> Stage2 --> Stage3
-
 ```
 
-### 1. Physiological Waveform Synthesis
+---
 
-Synthesizes exact **P-QRS-T** cardiac morphology using Gaussian superposition, injected with **50Hz powerline grid hum** and **low-frequency (0.3Hz) respiratory baseline wander**.
+# 1️⃣ Physiological Waveform Synthesis
 
-### 2. Cascaded Digital Filtering Pipeline
+Synthesizes realistic **P-QRS-T cardiac morphology** using Gaussian superposition.
 
-* **2nd-Order IIR Butterworth Low-Pass Filter (35Hz Cutoff):** Attenuates high-frequency muscle noise and jitter using recursive difference equations.
-* **Narrow Band-Stop Notch Filter (50Hz):** Eliminates electrical grid interference without distorting cardiac wave features.
+Injected artifacts include:
 
-### 3. Pan-Tompkins QRS Detection Engine
-
-* **5-Point Derivative Filter:** Isolates the high slope of the QRS complex.
-* **Squaring Function:** Amplifies slope energy and forces all values positive.
-* **Moving Window Integration (~150ms):** Smooths high-frequency bursts into single envelope pulses.
-* **Adaptive Thresholding:** Dynamically calculates peak cutoff limits and applies refractory limits (~200 BPM max) to prevent double-counting.
+- 50 Hz electrical powerline interference
+- 0.3 Hz respiratory baseline wander
 
 ---
 
-## 🎛️ Control Parameters & Interactive Inputs
+# 2️⃣ Cascaded Digital Filtering Pipeline
 
-CardioPulse DSP allows real-time signal manipulation directly from the user interface. Adjusting these parameters dynamically alters the math executed in the Spring Boot backend:
+### 2nd-Order IIR Butterworth Low-Pass Filter
 
-| Input Parameter | Default Value | Physiological & Signal Impact |
-| --- | --- | --- |
-| **Target Heart Rate (BPM)** | `75 BPM` | Adjusts the periodic spacing of synthesized P-QRS-T complexes. |
-| **Sampling Rate (Hz)** | `500 Hz` | Sets the discrete time step. Higher rates increase DSP resolution. |
-| **50Hz Noise Intensity** | `0.3` | Controls the amplitude multiplier of the injected powerline AC grid interference. |
+- 35 Hz cutoff frequency
+- Removes high-frequency muscle noise
+- Recursive difference equation implementation
 
----
+### Narrow Band-Stop Notch Filter
 
-## 📈 Diagnostic Status Conditions
-
-The engine automatically evaluates output heart rate metrics and displays instant clinical feedback:
-
-* 🟢 **Normal Sinus Rhythm:** Calculated heart rate is between **60 BPM** and **100 BPM**.
-* 🔴 **Tachycardia Detected:** Calculated heart rate exceeds **100 BPM**.
-* 🔵 **Bradycardia Detected:** Calculated heart rate falls below **60 BPM**.
+- Center Frequency: 50 Hz
+- Removes AC powerline interference
+- Preserves ECG waveform morphology
 
 ---
 
-## 📊 Feature Metrics Calculated in Real Time
+# 3️⃣ Pan-Tompkins QRS Detection Engine
 
-* **Heart Rate (BPM):** Precise beats-per-minute calculated directly from detected R-peak timing intervals.
-* **Heart Rate Variability (HRV / RMSSD):** Root-mean-square of successive beat differences in milliseconds.
-* **Diagnostic Status:** Automated physiological evaluation (**Normal Sinus Rhythm**, **Tachycardia**, or **Bradycardia**).
-* **Power Spectrum Density:** FFT magnitude plot demonstrating 50Hz noise spike flattening.
+The detection pipeline consists of:
 
----
-
-## 💻 Tech Stack
-
-* **Core Backend:** Java 17, Spring Boot 3
-* **DSP Math Library:** Apache Commons Math 3 (Fast Fourier Transform)
-* **Frontend UI:** HTML5, CSS3, Thymeleaf, Chart.js
-* **DevOps & Cloud:** Docker (Multi-stage Build), Render Cloud Platform
+- **5-Point Derivative Filter** – emphasizes QRS slopes
+- **Signal Squaring** – increases energy while eliminating negative values
+- **Moving Window Integration (~150 ms)** – smooths energy envelopes
+- **Adaptive Thresholding** – dynamically determines R-peaks while enforcing refractory limits (~200 BPM maximum)
 
 ---
 
-## ⚙️ How to Run Locally
+# 🎛️ Interactive Control Parameters
 
-### Prerequisites
+The frontend allows dynamic manipulation of backend DSP parameters.
 
-* Java JDK 17 or higher
-* Apache Maven 3.8+
+| Parameter | Default | Effect |
+|-----------|----------|--------|
+| Target Heart Rate | **75 BPM** | Controls spacing between synthesized beats |
+| Sampling Rate | **500 Hz** | Determines discrete-time DSP resolution |
+| 50 Hz Noise Intensity | **0.3** | Adjusts injected powerline interference amplitude |
 
-### Setup Commands
+---
+
+# 📈 Diagnostic Status
+
+The engine automatically classifies cardiac rhythm.
+
+| Status | Condition |
+|---------|-----------|
+| 🟢 Normal Sinus Rhythm | 60–100 BPM |
+| 🔴 Tachycardia | >100 BPM |
+| 🔵 Bradycardia | <60 BPM |
+
+---
+
+# 📊 Real-Time Metrics
+
+The application continuously computes:
+
+- Heart Rate (BPM)
+- Heart Rate Variability (RMSSD)
+- Diagnostic Rhythm Status
+- FFT Power Spectrum Density
+- Detected R-Peaks
+- ECG Waveform Visualization
+
+---
+
+# 💻 Tech Stack
+
+### Backend
+
+- Java 17
+- Spring Boot 3
+
+### DSP
+
+- Apache Commons Math 3 (FFT)
+
+### Frontend
+
+- HTML5
+- CSS3
+- Thymeleaf
+- Chart.js
+
+### DevOps
+
+- Docker
+- Render Cloud Platform
+
+---
+
+# ⚙️ Run Locally
+
+## Prerequisites
+
+- Java JDK 17+
+- Maven 3.8+
+
+## Clone Repository
 
 ```bash
-# 1. Clone the repository
-git clone [https://github.com/tarungowdac-1/cardiopulse.git](https://github.com/tarungowdac-1/cardiopulse.git)
+git clone https://github.com/tarungowdac-1/cardiopulse.git
 cd cardiopulse
-
-# 2. Build and package the application
-mvn clean package -DskipTests
-
-# 3. Launch the Spring Boot engine
-java -jar target/cardiopulse-1.0.0.jar
-
 ```
 
-*Open your browser and navigate to `http://localhost:8080`.*
+## Build
+
+```bash
+mvn clean package -DskipTests
+```
+
+## Run
+
+```bash
+java -jar target/cardiopulse-1.0.0.jar
+```
+
+Open:
+
+```
+http://localhost:8080
+```
 
 ---
 
-## 🐳 Running with Docker
+# 🐳 Docker
+
+Build Image
 
 ```bash
-# Build Docker Image
 docker build -t cardiopulse-java .
+```
 
-# Run Container
+Run Container
+
+```bash
 docker run -p 8080:8080 cardiopulse-java
-
 ```
 
+Open:
+
+```
+http://localhost:8080
 ```
 
+---
+
+# 🚀 Highlights
+
+✅ Pure Java Digital Signal Processing
+
+✅ Butterworth & Notch Filters
+
+✅ Pan-Tompkins QRS Detection
+
+✅ FFT Frequency Analysis
+
+✅ Real-Time ECG Visualization
+
+✅ Heart Rate & HRV Analytics
+
+✅ Spring Boot Backend
+
+✅ Dockerized Deployment
+
+✅ Render Cloud Hosting
+
+---
