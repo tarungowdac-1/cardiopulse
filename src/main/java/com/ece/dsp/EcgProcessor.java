@@ -41,13 +41,14 @@ public class EcgProcessor {
     // 2. 2nd-Order Digital Butterworth Low-Pass Filter
     public static double[] applyButterworthLowPass(double[] input, double fs, double fc) {
         double[] output = new double[input.length];
+        double sqrt2 = Math.sqrt(2.0); // Fixed: Uses valid Java Math.sqrt(2.0)
         double c = Math.tan(Math.PI * fc / fs);
-        double a0 = 1.0 + Math.SQRT2 * c + c * c;
+        double a0 = 1.0 + sqrt2 * c + c * c;
         double b0 = (c * c) / a0;
         double b1 = 2.0 * b0;
         double b2 = b0;
         double a1 = (2.0 * (c * c - 1.0)) / a0;
-        double a2 = (1.0 - Math.SQRT2 * c + c * c) / a0;
+        double a2 = (1.0 - sqrt2 * c + c * c) / a0;
 
         for (int i = 2; i < input.length; i++) {
             output[i] = b0 * input[i] + b1 * input[i - 1] + b2 * input[i - 2]
