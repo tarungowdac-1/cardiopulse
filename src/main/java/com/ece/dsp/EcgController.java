@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -39,10 +40,16 @@ public class EcgController {
         double[] rawFFT = EcgProcessor.computeFFTSpectrum(rawSignal);
         double[] filteredFFT = EcgProcessor.computeFFTSpectrum(filteredSignal);
 
-        model.addAttribute("rawSignal", rawSignal);
-        model.addAttribute("filteredSignal", filteredSignal);
-        model.addAttribute("rawFFT", rawFFT);
-        model.addAttribute("filteredFFT", filteredFFT);
+        // 6. Convert double[] to List<Double> so Thymeleaf/JS parses them properly
+        List<Double> rawList = toList(rawSignal);
+        List<Double> filteredList = toList(filteredSignal);
+        List<Double> rawFFTList = toListTruncated(rawFFT, 80);
+        List<Double> filteredFFTList = toListTruncated(filteredFFT, 80);
+
+        model.addAttribute("rawSignal", rawList);
+        model.addAttribute("filteredSignal", filteredList);
+        model.addAttribute("rawFFT", rawFFTList);
+        model.addAttribute("filteredFFT", filteredFFTList);
         model.addAttribute("bpm", (int) calculatedBpm);
         model.addAttribute("hrv", String.format("%.2f", hrv));
         model.addAttribute("status", status);
@@ -52,5 +59,18 @@ public class EcgController {
         model.addAttribute("targetBpm", (int) targetBpm);
 
         return "index";
+    }
+
+    private List<Double> toList(double[] array) {
+        List<Double> list = new ArrayList<>(array.length);
+        for (double v : array) list.add(v);
+        return list;
+    }
+
+    private List<Double> toListTruncated(double[] array, int limit) {
+        int max = Math.min(array.length, limit);
+        List<Double> list = new ArrayList<>(max);
+        for (int i = 0; i < max; i++) list.add(array[i]);
+        return list;
     }
 }
