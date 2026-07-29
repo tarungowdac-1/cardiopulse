@@ -263,13 +263,6 @@ docs/images/fft-spectrum.png
 ![FFT Spectrum](docs/images/fft-spectrum.png)
 
 ---
-## 📷 Preview
-
-![Dashboard](docs/images/dashboard.png)
-
-![ECG](docs/images/ecg-waveform.png)
-
-![FFT](docs/images/fft-spectrum.png)
 
 # 💻 Technology Stack
 
