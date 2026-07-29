@@ -11,28 +11,32 @@ CardioPulse DSP is a full-stack, cloud-deployed **Java Biomedical Signal Process
 # 📐 System Architecture & DSP Pipeline
 
 ```mermaid
-graph TD
-    A[Noisy ECG Telemetry Generator] -->|50Hz Grid Noise + Baseline Wander| B[2nd-Order IIR Butterworth LPF]
-    B -->|High Frequencies Attenuated| C[50Hz Narrow Band-Stop Notch Filter]
+flowchart LR
 
-    subgraph Pan-Tompkins QRS Detection Engine
-        C --> D[5-Point Derivative Filter]
-        D --> E[Signal Squaring Unit]
-        E --> F[Moving Window Integration]
-        F --> G[Adaptive Dynamic Thresholding]
+    subgraph Stage1["1. Signal Conditioning"]
+        direction TB
+        S1A["Low-Pass Filter\nCutoff: 35 Hz"]
+        S1B["50 Hz Notch Filter"]
     end
 
-    G --> H[R-Peak Indices & Timestamps]
-    H --> I[BPM & Heart Rate Variability Calculation]
-    C --> J[Fast Fourier Transform Spectrum]
+    subgraph Stage2["2. QRS Feature Extraction"]
+        direction TB
+        S2A["5-Point Derivative"]
+        S2B["Signal Squaring"]
+        S2C["Moving Window Integration\n150 ms"]
+    end
 
-    classDef default fill:#151c28,stroke:#3b82f6,stroke-width:2px,color:#fff;
-    classDef highlight fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff;
-    class H,I,J highlight;
+    subgraph Stage3["3. Metric Evaluation"]
+        direction TB
+        S3A["Adaptive Thresholding"]
+        S3B["Refractory Period Check"]
+        S3C["Heart Rate"]
+        S3D["RMSSD HRV"]
+    end
+
+    Stage1 --> Stage2
+    Stage2 --> Stage3
 ```
-
----
-
 # Why CardioPulse DSP?
 
 Most web applications are simple CRUD (Create, Read, Update, Delete) systems. **CardioPulse DSP stands out because it solves low-level mathematical and digital signal processing (DSP) challenges on the backend.**
