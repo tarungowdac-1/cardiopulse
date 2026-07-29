@@ -1,446 +1,113 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <!-- Professional Metadata: Crucial for "standard" projects -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>🫀 CardioPulse DSP | Biomedical Engine (Java)</title>
-
-    <!-- Standard Professional Fonts: Inter is the industry standard for modern tech UIs -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- CSS Libraries for Icons & Animations -->
-    <!-- Feather Icons: Clean, consistent icons -->
+    <title>🫀 CardioPulse DSP | Medical Signal Processing Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/feather-icons"></script>
-    <!-- Chart.js: Main charting library (v4.x is more standard and modern) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <!-- AOS: Animate on Scroll library for smooth transitions -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
     <style>
-        /* --- PROFESSIONAL CSS VARIABLES ---
-           Using variables ensures consistent branding across the app. */
-        :root {
-            --bg-color: #0f1218; /* Standard Deep Dark */
-            --card-bg: #161a22; /* Standard Elevated Card Color */
-            --primary-color: #3b82f6; /* Standard Tech Blue (from Tailwind) */
-            --primary-glow: rgba(59, 130, 246, 0.2);
-            --danger-color: #ef4444; /* Standard Danger Red */
-            --danger-glow: rgba(239, 68, 68, 0.1);
-            --success-color: #10b981; /* Standard Success Green */
-            --success-glow: rgba(16, 185, 129, 0.1);
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --border-color: #272c35;
-            --transition-standard: all 0.2s ease;
-            --border-radius-md: 12px;
-            --border-radius-lg: 16px;
-        }
-
-        /* --- GLOBAL & TYPOGRAPHY STYLES --- */
-        body {
-            font-family: 'Inter', -apple-system, sans-serif; /* Professional Font Stack */
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased; /* Standard for high-end text rendering */
-        }
-
-        h1, h2, h3, h4 {
-            font-weight: 700;
-            margin-top: 0;
-            color: var(--text-primary);
-        }
-
-        .container {
-            max-width: 1280px; /* Standard professional layout width */
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        /* --- PROFESSIONAL HEADER & LAYOUT --- */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 2rem;
-        }
-
-        .header-title-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .header-title-group i {
-            color: var(--danger-color);
-            transform: scale(1.3);
-            filter: drop-shadow(0 0 8px var(--danger-glow));
-        }
-
-        header h1 {
-            font-size: 2rem;
-            margin: 0;
-            letter-spacing: -1px;
-            font-weight: 800;
-        }
-
-        header h1 span {
-            color: var(--text-secondary);
-            font-weight: 400;
-            font-size: 1.1rem;
-            margin-left: 8px;
-        }
-
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--success-color);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--success-color);
-            border-radius: 50%;
-            animation: pulse 2s infinite; /* Advanced CSS animation */
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-
-        /* --- STANDARD DASHBOARD CARDS --- */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        /* Base Card Styling: Clean and defined */
-        .card {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius-lg);
-            border: 1px solid var(--border-color);
-            padding: 1.5rem;
-            transition: var(--transition-standard);
-        }
-
-        /* Standard Card Hover Effect: Minimal but responsive */
-        .card:hover {
-            border-color: var(--primary-color);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-            transform: translateY(-2px); /* Subtle Standard Transition */
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 1.25rem;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
-
-        .card-header i {
-            color: var(--primary-color);
-            stroke-width: 2.5px;
-        }
-
-        /* --- PROFESSIONAL SIGNAL CONTROLS (THEORY) --- */
-        .control-form {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.25rem;
-            align-items: flex-end;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        /* Standard Professional Inputs */
-        input[type="number"] {
-            background-color: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-md);
-            color: var(--text-primary);
-            padding: 12px;
-            font-size: 1rem;
-            font-family: inherit;
-            transition: var(--transition-standard);
-        }
-
-        input[type="number"]:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px var(--primary-glow);
-        }
-
-        /* Professional Standard Tech Button */
-        button.btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: var(--border-radius-md);
-            padding: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition-standard);
-            grid-column: span 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
-        button.btn-primary:hover {
-            background-color: #2563eb;
-            box-shadow: 0 4px 15px var(--primary-glow);
-        }
-
-        button.btn-primary i {
-            transform: scale(0.9);
-        }
-
-        /* --- METRIC CARD DISPLAY --- */
-        .metric-group {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-        }
-
-        .metric-card-content {
-            display: flex;
-            flex-direction: column;
-            align-items: start;
-        }
-
-        .metric-value {
-            font-size: 3.5rem;
-            font-weight: 800;
-            letter-spacing: -3px;
-            margin: 0;
-            line-height: 1;
-            color: var(--success-color);
-            filter: drop-shadow(0 0 10px var(--success-glow));
-        }
-
-        .metric-unit {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-            margin-top: 4px;
-        }
-
-        .peaks-metric {
-            color: var(--danger-color);
-            filter: drop-shadow(0 0 10px var(--danger-glow));
-        }
-
-        /* --- CHART SECTION (STANDARD LOOK) --- */
-        .chart-container-card {
-            grid-column: span 2;
-        }
-
-        .chart-wrapper {
-            position: relative;
-            height: 450px; /* Standard professional chart height */
-            width: 100%;
-        }
-
-        /* Smooth Standard JS Animation for Chart Updates */
-        canvas {
-            transition: var(--transition-standard);
-        }
-
+        :root { --bg: #090d16; --card: #131a27; --primary: #3b82f6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --text: #f8fafc; --muted: #64748b; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 2rem; }
+        .container { max-width: 1280px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 1.5rem; margin-bottom: 2rem; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 1.5rem; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
+        .card { background: var(--card); border: 1px solid #1e293b; border-radius: 12px; padding: 1.25rem; }
+        .metric-title { font-size: 0.85rem; color: var(--muted); font-weight: 600; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .metric-value { font-size: 2.25rem; font-weight: 800; }
+        .metric-subtitle { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
+        form { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; align-items: flex-end; }
+        input, button { background: #0b0f19; border: 1px solid #334155; color: #fff; padding: 10px; border-radius: 8px; font-family: inherit; width: 100%; box-sizing: border-box; }
+        button { background: var(--primary); cursor: pointer; border: none; font-weight: 700; transition: all 0.2s; }
+        button:hover { background: #2563eb; }
+        .chart-container { position: relative; height: 340px; }
+        .badge { background: rgba(59, 130, 246, 0.1); color: var(--primary); border: 1px solid var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Professional Header -->
-        <header data-aos="fade-down">
-            <div class="header-title-group">
-                <i data-feather="heart"></i>
-                <h1>CardioPulse<span>Biomedical DSP Engine (Java)</span></h1>
+        <div class="header">
+            <div>
+                <h1 style="margin: 0; font-size: 1.8rem; font-weight: 800;">🫀 CardioPulse DSP Engine</h1>
+                <p style="margin: 0.25rem 0 0 0; color: var(--muted); font-size: 0.95rem;">Pan-Tompkins QRS • IIR Butterworth Bandpass • 50Hz Notch Filter • Fast Fourier Spectrum</p>
             </div>
-            <div class="status-badge">
-                <div class="status-dot"></div>
-                Telemetry Engine Active
-            </div>
-        </header>
+            <span class="badge">Medical DSP Engine v2.0</span>
+        </div>
 
-        <!-- Main Dashboard Layout -->
-        <div class="dashboard-grid">
-            <!-- Professional Control Card -->
-            <div class="card" data-aos="fade-up" data-aos-delay="100">
-                <div class="card-header">
-                    <i data-feather="settings"></i>
-                    Signal Generation Parameters
-                </div>
-                <form action="/" method="get" class="control-form">
-                    <div class="form-group">
-                        <label>Sampling Rate (Hz)</label>
-                        <input type="number" name="samplingRate" th:value="${samplingRate}" min="100" max="1000" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Grid Noise (50Hz)</label>
-                        <input type="number" step="0.1" name="noise" th:value="${noise}" min="0" max="2.0" required>
-                    </div>
-                    <button type="submit" class="btn-primary">
-                        <i data-feather="refresh-cw"></i>
-                        Re-Process
-                    </button>
-                </form>
-            </div>
+        <div class="card" style="margin-bottom: 1.5rem;">
+            <form action="/" method="get">
+                <div><label style="font-size: 0.85rem; color: var(--muted);">Target Heart Rate (BPM)</label><input type="number" name="targetBpm" th:value="${targetBpm}"></div>
+                <div><label style="font-size: 0.85rem; color: var(--muted);">Sampling Rate (Hz)</label><input type="number" name="samplingRate" th:value="${samplingRate}"></div>
+                <div><label style="font-size: 0.85rem; color: var(--muted);">50Hz Noise Intensity</label><input type="number" step="0.1" name="noise" th:value="${noise}"></div>
+                <div><button type="submit">Execute DSP Pipeline</button></div>
+            </form>
+        </div>
 
-            <!-- Professional Metric Grid -->
-            <div class="metric-group">
-                <div class="card metric-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="card-header">
-                        <i data-feather="trending-up"></i>
-                        Real-Time BPM
-                    </div>
-                    <div class="metric-card-content">
-                        <h2 class="metric-value" th:text="${bpm}">0</h2>
-                        <span class="metric-unit">BPM</span>
-                    </div>
-                </div>
-                <div class="card metric-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="card-header">
-                        <i data-feather="bar-chart-2"></i>
-                        Detected R-Peaks
-                    </div>
-                    <div class="metric-card-content">
-                        <h2 class="metric-value peaks-metric" th:text="${peaksCount}">0</h2>
-                        <span class="metric-unit">Peaks Detected</span>
-                    </div>
-                </div>
+        <div class="grid-4">
+            <div class="card">
+                <div class="metric-title">Calculated Heart Rate</div>
+                <div class="metric-value" style="color: var(--success);" th:text="${bpm} + ' BPM'">0 BPM</div>
+                <div class="metric-subtitle">Pan-Tompkins Algorithm</div>
             </div>
-
-            <!-- Professional Chart Card -->
-            <div class="card chart-container-card" data-aos="fade-up" data-aos-delay="400">
-                <div class="card-header">
-                    <i data-feather="activity"></i>
-                    ECG Telemetry: Noisy vs. DSP Filtered
-                </div>
-                <div class="chart-wrapper">
-                    <canvas id="ecgChart"></canvas>
-                </div>
+            <div class="card">
+                <div class="metric-title">Detected R-Peaks</div>
+                <div class="metric-value" style="color: var(--primary);" th:text="${peaksCount}">0</div>
+                <div class="metric-subtitle">QRS Interval Count</div>
+            </div>
+            <div class="card">
+                <div class="metric-title">Heart Rate Variability</div>
+                <div class="metric-value" style="color: var(--warning);" th:text="${hrv} + ' ms'">0 ms</div>
+                <div class="metric-subtitle">RMSSD Index</div>
+            </div>
+            <div class="card">
+                <div class="metric-title">Diagnostic Status</div>
+                <div class="metric-value" style="font-size: 1.1rem; color: #fff; margin-top: 0.5rem;" th:text="${status}">Normal</div>
+                <div class="metric-subtitle">Real-time Evaluation</div>
             </div>
         </div>
 
-        <p style="text-align: center; color: var(--text-secondary); font-size: 0.9rem; margin-top: 3rem;">
-            A project developed as a part of the ECE DSP curriculum, powered by Java, Spring Boot, and Chart.js
-        </p>
+        <div class="grid-2">
+            <div class="card" style="grid-column: span 2;">
+                <h3 style="margin-top: 0;">1. ECG Time Domain Waveform (Filtered vs Raw)</h3>
+                <div class="chart-container"><canvas id="timeChart"></canvas></div>
+            </div>
+            <div class="card" style="grid-column: span 2;">
+                <h3 style="margin-top: 0;">2. Frequency Domain Power Spectrum (FFT Attenuation Check)</h3>
+                <div class="chart-container"><canvas id="fftChart"></canvas></div>
+            </div>
+        </div>
     </div>
 
     <script th:inline="javascript">
-        // Standard Javascript for Transitions and Icons
+        const rawSignal = /*[[${rawSignal}]]*/ [];
+        const filteredSignal = /*[[${filteredSignal}]]*/ [];
+        const rawFFT = /*[[${rawFFT}]]*/ [].slice(0, 80);
+        const filteredFFT = /*[[${filteredFFT}]]*/ [].slice(0, 80);
 
-        // 1. Feather Icons Initialization: Needed for feather icons to render
-        feather.replace();
-
-        // 2. AOS Initialization: Smooth fade-in transitions on load
-        AOS.init({
-            duration: 600,
-            easing: 'ease-out-cubic',
-            once: true
-        });
-
-        // 3. Chart.js Implementation (Modern V4 Syntax)
-        const rawData = /*[[${rawSignal}]]*/ [];
-        const filteredData = /*[[${filteredSignal}]]*/ [];
-        const labels = rawData.map((_, i) => i);
-
-        const ctx = document.getElementById('ecgChart').getContext('2d');
-
-        // Standard Professional Chart Config: Minimal, easy to read, with smooth transition
-        new Chart(ctx, {
+        new Chart(document.getElementById('timeChart'), {
             type: 'line',
             data: {
-                labels: labels,
+                labels: rawSignal.map((_, i) => i),
                 datasets: [
-                    {
-                        label: 'Raw Signal (Noise)',
-                        data: rawData,
-                        borderColor: '#ef4444', // CSS Danger Color
-                        borderWidth: 1.5,
-                        pointRadius: 0,
-                        order: 2 // Raw signal behind filtered
-                    },
-                    {
-                        label: 'Filtered Waveform (DSP)',
-                        data: filteredData,
-                        borderColor: '#10b981', // CSS Success Color
-                        borderWidth: 3,
-                        pointRadius: 0,
-                        order: 1 // Filtered signal on top
-                    }
+                    { label: 'Raw Noise-Corrupted Signal', data: rawSignal, borderColor: '#ef4444', borderWidth: 1, pointRadius: 0 },
+                    { label: 'Pan-Tompkins Filtered Output', data: filteredSignal, borderColor: '#10b981', borderWidth: 2, pointRadius: 0 }
                 ]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        display: false, // Standard look to hide x-axis labels
-                        title: { display: true, text: 'Time (samples)', color: '#94a3b8' }
-                    },
-                    y: {
-                        display: true,
-                        title: { display: true, text: 'Amplitude', color: '#94a3b8' },
-                        grid: { color: '#1a1f29' },
-                        ticks: { color: '#94a3b8' }
-                    }
-                },
-                elements: {
-                    line: {
-                        tension: 0.3 // Standard professional curve tension
-                    }
-                },
-                // Smooth Standard JS Animation on update
-                animation: {
-                    duration: 800,
-                    easing: 'easeOutCubic'
-                },
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: '#94a3b8',
-                            font: { family: "'Inter', sans-serif", weight: '500' },
-                            padding: 20
-                        }
-                    }
-                }
-            }
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { display: false } } }
+        });
+
+        new Chart(document.getElementById('fftChart'), {
+            type: 'line',
+            data: {
+                labels: rawFFT.map((_, i) => i + ' Hz'),
+                datasets: [
+                    { label: 'Raw Frequency Spectrum (50Hz Noise Spike)', data: rawFFT, borderColor: '#3b82f6', borderWidth: 1.5, pointRadius: 0 },
+                    { label: 'Filtered Spectrum (Cleaned)', data: filteredFFT, borderColor: '#10b981', borderWidth: 2, pointRadius: 0 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
         });
     </script>
 </body>
