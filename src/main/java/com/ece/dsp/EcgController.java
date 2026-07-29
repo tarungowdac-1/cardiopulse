@@ -14,21 +14,42 @@ public class EcgController {
     public String index(
             @RequestParam(defaultValue = "500") int samplingRate,
             @RequestParam(defaultValue = "5") double duration,
-            @RequestParam(defaultValue = "0.2") double noise,
+            @RequestParam(defaultValue = "0.3") double noise,
+            @RequestParam(defaultValue = "75") double targetBpm,
             Model model) {
 
-        double[] rawSignal = EcgProcessor.generateSyntheticEcg(samplingRate, duration, noise);
-        double[] filteredSignal = EcgProcessor.applyFilter(rawSignal, 5);
-        List<Integer> peaks = EcgProcessor.detectPeaks(filteredSignal, 0.8);
+        // 1. Generate Signal
+        double[] rawSignal = EcgProcessor.generateSyntheticEcg(samplingRate, duration, noise, targetBpm);
 
-        double bpm = (peaks.size() / duration) * 60.0;
+        // 2. Cascade DSP Filtering Pipeline
+        double[] stage1 = EcgProcessor.applyButterworthLowPass(rawSignal, samplingRate, 35.0);
+        double[] filteredSignal = EcgProcessor.applyNotchFilter(stage1, samplingRate, 50.0);
+
+        // 3. Pan-Tompkins Peak Detection & Metrics
+        List<Integer> peaks = EcgProcessor.panTompkinsPeakDetection(filteredSignal, samplingRate);
+        double calculatedBpm = (peaks.size() / duration) * 60.0;
+        double hrv = EcgProcessor.calculateHRV(peaks, samplingRate);
+
+        // 4. Clinical Condition Evaluation
+        String status = "Normal Sinus Rhythm";
+        if (calculatedBpm > 100) status = "Tachycardia Detected (High Heart Rate)";
+        else if (calculatedBpm < 60) status = "Bradycardia Detected (Low Heart Rate)";
+
+        // 5. FFT Spectrum Analysis
+        double[] rawFFT = EcgProcessor.computeFFTSpectrum(rawSignal);
+        double[] filteredFFT = EcgProcessor.computeFFTSpectrum(filteredSignal);
 
         model.addAttribute("rawSignal", rawSignal);
         model.addAttribute("filteredSignal", filteredSignal);
-        model.addAttribute("bpm", (int) bpm);
+        model.addAttribute("rawFFT", rawFFT);
+        model.addAttribute("filteredFFT", filteredFFT);
+        model.addAttribute("bpm", (int) calculatedBpm);
+        model.addAttribute("hrv", String.format("%.2f", hrv));
+        model.addAttribute("status", status);
         model.addAttribute("peaksCount", peaks.size());
         model.addAttribute("samplingRate", samplingRate);
         model.addAttribute("noise", noise);
+        model.addAttribute("targetBpm", (int) targetBpm);
 
         return "index";
     }
