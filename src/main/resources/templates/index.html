@@ -1,1 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>🫀 CardioPulse DSP (Java Engine)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: white; margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .card { background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .metrics { display: flex; gap: 20px; }
+        .metric-box { flex: 1; text-align: center; }
+        .metric-value { font-size: 28px; font-weight: bold; color: #10b981; }
+        form { display: flex; gap: 15px; align-items: center; }
+        input, button { padding: 10px; border-radius: 8px; border: none; }
+        button { background: #10b981; color: white; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🫀 CardioPulse DSP — Java Biomedical Engine</h1>
 
+        <div class="card">
+            <h3>⚙️ Adjust Telemetry Signals</h3>
+            <form action="/" method="get">
+                <label>Sampling Rate (Hz):</label>
+                <input type="number" name="samplingRate" th:value="${samplingRate}">
+                <label>Noise Level:</label>
+                <input type="number" step="0.1" name="noise" th:value="${noise}">
+                <button type="submit">Re-Process Signal</button>
+            </form>
+        </div>
+
+        <div class="metrics">
+            <div class="card metric-box">
+                <div>Heart Rate</div>
+                <div class="metric-value" th:text="${bpm} + ' BPM'">0 BPM</div>
+            </div>
+            <div class="card metric-box">
+                <div>Detected R-Peaks</div>
+                <div class="metric-value" th:text="${peaksCount}">0</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📊 Live Waveform Comparison</h3>
+            <canvas id="ecgChart"></canvas>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const rawData = /*[[${rawSignal}]]*/ [];
+        const filteredData = /*[[${filteredSignal}]]*/ [];
+        const labels = rawData.map((_, i) => i);
+
+        new Chart(document.getElementById('ecgChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Raw Signal (Noise)', data: rawData, borderColor: '#ef4444', borderWidth: 1, pointRadius: 0 },
+                    { label: 'Filtered Waveform (DSP)', data: filteredData, borderColor: '#10b981', borderWidth: 2, pointRadius: 0 }
+                ]
+            },
+            options: { scales: { x: { display: false } }, animation: false }
+        });
+    </script>
+</body>
+</html>
