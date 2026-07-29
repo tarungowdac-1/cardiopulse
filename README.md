@@ -1,4 +1,3 @@
-```markdown
 # 🫀 CardioPulse DSP | Enterprise Biomedical Signal Engine
 
 [![Java 17](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
